@@ -1,219 +1,169 @@
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <title>Quiz Sejarah Islam</title>
+<meta charset="UTF-8">
+<title>Quiz Sejarah Islam</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background:
+    linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
+    url('background-luar.jpg') no-repeat center center fixed;
+  background-size: cover;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #111; /* body gelap, bukan putih */
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-    }
+.quiz-box {
+  background:
+    linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)),
+    url('background-quiz.jpg') no-repeat center center;
+  background-size: cover;
+  padding: 20px;
+  border-radius: 15px;
+  width: 90%;
+  max-width: 500px;
+  color: white;
+}
 
-    /* KOTAK QUIZ PAKAI FOTO */
-    .quiz-box {
-      background: 
-        linear-gradient(
-          rgba(0,0,0,0.6),
-          rgba(0,0,0,0.6)
-        ),
-        url('background.jpg'); /* FOTO KAMU */
-      background-size: cover;
-      background-position: center;
+button {
+  padding: 10px;
+  margin-top: 10px;
+  width: 48%;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+}
 
-      color: white;
-      padding: 25px;
-      width: 460px;
-      border-radius: 12px;
-      box-shadow: 0 6px 15px rgba(0,0,0,0.6);
-    }
+.next { background: #2196F3; color: white; }
+.back { background: #555; color: white; }
 
-    .timer {
-      text-align: right;
-      font-weight: bold;
-      color: #ff7675;
-      margin-bottom: 10px;
-    }
-
-    h2 {
-      font-size: 18px;
-      margin-bottom: 10px;
-    }
-
-    .option {
-      margin: 8px 0;
-    }
-
-    .result {
-      margin-top: 10px;
-      font-weight: bold;
-    }
-
-    .buttons {
-      display: flex;
-      gap: 10px;
-      margin-top: 15px;
-    }
-
-    button {
-      flex: 1;
-      padding: 10px;
-      border: none;
-      background: #0984e3;
-      color: white;
-      font-size: 15px;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background: #74b9ff;
-      color: black;
-    }
-  </style>
+.timer {
+  text-align: right;
+  font-weight: bold;
+  color: #ff5252;
+}
+</style>
 </head>
+
 <body>
 
 <div class="quiz-box">
-  <div class="timer" id="timer">⏰ 30:00</div>
-  <h2 id="question"></h2>
-  <div id="options"></div>
-  <div id="result" class="result"></div>
+  <div class="timer" id="timer">30:00</div>
+  <h3 id="question"></h3>
+  <div id="answers"></div>
 
-  <div class="buttons">
-    <button onclick="prevQuestion()">Kembali</button>
-    <button onclick="nextQuestion()">Next</button>
+  <div style="display:flex; justify-content:space-between;">
+    <button class="back" onclick="prevQuestion()">Kembali</button>
+    <button class="next" onclick="nextQuestion()">Next</button>
   </div>
+
+  <p id="result"></p>
 </div>
 
-<!-- SOUND -->
-<audio id="soundBenar" src="benar.mp3"></audio>
-<audio id="soundSalah" src="salah.mp3"></audio>
-<audio id="soundSelesai" src="selesai.mp3"></audio>
+<audio id="benar" src="benar.mp3"></audio>
+<audio id="salah" src="salah.mp3"></audio>
+<audio id="selesai" src="selesai.mp3"></audio>
 
 <script>
-  const quiz = [
-    {
-      question: "1. Latar belakang kodifikasi Al-Qur’an pada masa Abu Bakar adalah …",
-      options: [
-        "Banyak ayat Al-Qur’an yang hilang",
-        "Banyak penghafal Al-Qur’an gugur dalam Perang Riddah",
-        "Perintah langsung dari Rasulullah Saw",
-        "Permintaan dari kaum Anshar"
-      ],
-      answer: 1
-    },
-    {
-      question: "2. Sahabat yang ditunjuk Abu Bakar memimpin pengumpulan Al-Qur’an adalah …",
-      options: [
-        "Umar bin Khathab",
-        "Ali bin Abi Thalib",
-        "Zaid bin Tsabit",
-        "Utsman bin Affan"
-      ],
-      answer: 2
-    },
-    {
-      question: "3. Peristiwa Riddah terjadi karena …",
-      options: [
-        "Perluasan wilayah",
-        "Menolak zakat dan murtad",
-        "Perselisihan sahabat",
-        "Serangan Romawi"
-      ],
-      answer: 1
-    },
-    {
-      question: "4. Musyawarah penentuan khalifah terjadi di …",
-      options: [
-        "Masjid Nabawi",
-        "Rumah Aisyah",
-        "Saqifah Bani Saidah",
-        "Padang Arafah"
-      ],
-      answer: 2
-    },
-    {
-      question: "5. Lama pemerintahan Abu Bakar adalah …",
-      options: [
-        "1 tahun",
-        "2 tahun 3 bulan",
-        "5 tahun",
-        "10 tahun"
-      ],
-      answer: 1
-    }
-  ];
+const quiz = [
+ {
+  q:"1. Latar belakang kodifikasi Al-Qur’an pada masa Abu Bakar adalah …",
+  a:["Banyak ayat Al-Qur’an yang hilang",
+     "Banyak penghafal Al-Qur’an gugur dalam Perang Riddah",
+     "Perintah langsung dari Rasulullah Saw",
+     "Permintaan dari kaum Anshar"],
+  correct:1
+ },
+ {
+  q:"2. Sahabat yang ditunjuk Abu Bakar memimpin pengumpulan Al-Qur’an adalah …",
+  a:["Umar bin Khathab","Ali bin Abi Thalib","Zaid bin Tsabit","Utsman bin Affan"],
+  correct:2
+ },
+ {
+  q:"3. Peristiwa Riddah terjadi karena …",
+  a:["Perluasan wilayah","Menolak zakat & murtad","Perselisihan sahabat","Serangan Romawi"],
+  correct:1
+ },
+ {
+  q:"4. Musyawarah penentuan khalifah berlangsung di …",
+  a:["Masjid Nabawi","Rumah Aisyah","Saqifah Bani Saidah","Padang Arafah"],
+  correct:2
+ },
+ {
+  q:"5. Lama pemerintahan Abu Bakar sekitar …",
+  a:["1 tahun","2 tahun 3 bulan","5 tahun","10 tahun"],
+  correct:1
+ }
+];
 
-  let current = 0;
-  let answers = Array(quiz.length).fill(null);
+let index = 0;
+let score = 0;
+let answers = [];
 
-  let timeLeft = 30 * 60;
-  const timerInterval = setInterval(() => {
-    const m = Math.floor(timeLeft / 60);
-    const s = timeLeft % 60;
-    document.getElementById("timer").innerText =
-      `⏰ ${m}:${s < 10 ? "0" : ""}${s}`;
-    if (timeLeft <= 0) finishQuiz();
-    timeLeft--;
-  }, 1000);
+function loadQuestion(){
+ document.getElementById("question").innerText = quiz[index].q;
+ const ans = document.getElementById("answers");
+ ans.innerHTML = "";
+ quiz[index].a.forEach((item,i)=>{
+   ans.innerHTML += `
+    <label>
+     <input type="radio" name="answer" value="${i}" onclick="check(${i})">
+     ${item}
+    </label><br>`;
+ });
+ document.getElementById("result").innerText = "";
+}
 
-  function loadQuestion() {
-    const q = quiz[current];
-    question.innerText = q.question;
-    options.innerHTML = "";
-    result.innerHTML = "";
+function check(i){
+ answers[index] = i;
+ if(i === quiz[index].correct){
+  document.getElementById("benar").play();
+  document.getElementById("result").innerText = "✔️ Jawaban benar";
+ } else {
+  document.getElementById("salah").play();
+  document.getElementById("result").innerText = "❌ Jawaban salah";
+ }
+}
 
-    q.options.forEach((opt, i) => {
-      options.innerHTML += `
-        <div class="option">
-          <input type="radio" name="option" value="${i}"
-          ${answers[current] === i ? "checked" : ""}>
-          ${opt}
-        </div>`;
-    });
-
-    if (answers[current] !== null) {
-      if (answers[current] === q.answer) {
-        result.innerHTML = "✅ BENAR";
-        result.style.color = "#00ff99";
-      } else {
-        result.innerHTML = "❌ SALAH";
-        result.style.color = "#ff7675";
-      }
-    }
-  }
-
-  function nextQuestion() {
-    const selected = document.querySelector('input[name="option"]:checked');
-    if (!selected) return alert("Pilih jawaban dulu!");
-    answers[current] = +selected.value;
-
-    answers[current] === quiz[current].answer
-      ? soundBenar.play()
-      : soundSalah.play();
-
-    current < quiz.length - 1 ? (current++, loadQuestion()) : finishQuiz();
-  }
-
-  function prevQuestion() {
-    if (current > 0) current--, loadQuestion();
-  }
-
-  function finishQuiz() {
-    clearInterval(timerInterval);
-    soundSelesai.play();
-    const score = answers.filter((a, i) => a === quiz[i].answer).length;
-    document.querySelector(".quiz-box").innerHTML =
-      `<h2>Quiz Selesai 🎉</h2><p>Skor kamu: <b>${score}/${quiz.length}</b></p>`;
-  }
-
+function nextQuestion(){
+ if(index < quiz.length-1){
+  index++;
   loadQuestion();
+ } else {
+  document.getElementById("selesai").play();
+  alert("Quiz selesai! Skor kamu: " + scoreHitung());
+ }
+}
+
+function prevQuestion(){
+ if(index > 0){
+  index--;
+  loadQuestion();
+ }
+}
+
+function scoreHitung(){
+ let s=0;
+ answers.forEach((a,i)=>{ if(a===quiz[i].correct) s++; });
+ return s+"/"+quiz.length;
+}
+
+// TIMER 30 MENIT
+let time = 1800;
+setInterval(()=>{
+ let m = Math.floor(time/60);
+ let s = time%60;
+ document.getElementById("timer").innerText =
+  `${m}:${s<10?'0'+s:s}`;
+ if(time>0) time--;
+},1000);
+
+loadQuestion();
 </script>
 
 </body>
